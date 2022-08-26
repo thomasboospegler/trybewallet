@@ -1,5 +1,5 @@
 // Esse reducer será responsável por tratar o todas as informações relacionadas as despesas
-import { WALLET_INFO } from '../actions';
+import { WALLET_INFO, REQUEST_API, SUCCES_API, REJECTED_API } from '../actions';
 
 const initialState = {
   currencies: [], // array de string
@@ -11,8 +11,16 @@ const initialState = {
 const wallet = (state = initialState, action) => {
   switch (action.type) {
   case WALLET_INFO:
-    return { ...state, editor: true };
-
+    return { ...state };
+  case REQUEST_API:
+    return { ...state };
+  case SUCCES_API:
+    return { ...state,
+      currencies: Object.values(action.data)
+        .filter(({ codein }) => codein !== 'BRLT')
+        .map(({ code }) => code) };
+  case REJECTED_API:
+    return { ...state };
   default:
     return state;
   }

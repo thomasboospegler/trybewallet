@@ -4,13 +4,29 @@ import { connect } from 'react-redux';
 import { fetchAPI } from '../redux/actions';
 
 class WalletForm extends Component {
+  state = {
+    despesa: '',
+    currencie: 'USD',
+    method: 'Dinheiro',
+    tag: 'Alimentação',
+    description: '',
+  };
+
   componentDidMount() {
     const { getCurrencies } = this.props;
     getCurrencies();
   }
 
+  handleChange = ({ target }) => {
+    const { name, value } = target;
+    this.setState({
+      [name]: value,
+    });
+  };
+
   render() {
     const { currencies } = this.props;
+    const { despesa, currencie, method, tag, description } = this.state;
     return (
       <form onSubmit={ this.handleSubmit }>
         <label htmlFor="despesa">
@@ -19,22 +35,37 @@ class WalletForm extends Component {
             type="number"
             data-testid="value-input"
             name="despesa"
-          // value={ despesa }
-          // onChange={ this.handleChange }
+            value={ despesa }
+            onChange={ this.handleChange }
           />
         </label>
-        <select name="select" data-testid="currency-input">
-          {currencies.map((currencie) => (
-            <option key={ currencie } value={ currencie }>
-              {currencie}
+        <select
+          name="currencie"
+          data-testid="currency-input"
+          value={ currencie }
+          onChange={ this.handleChange }
+        >
+          {currencies.map((curr) => (
+            <option key={ curr } value={ curr }>
+              {curr}
             </option>))}
         </select>
-        <select name="select" data-testid="method-input">
+        <select
+          name="method"
+          data-testid="method-input"
+          value={ method }
+          onChange={ this.handleChange }
+        >
           <option value="Dinheiro">Dinheiro</option>
           <option value="Cartão de crédito">Cartão de crédito</option>
           <option value="Cartão de débito">Cartão de débito</option>
         </select>
-        <select name="select" data-testid="tag-input">
+        <select
+          name="tag"
+          data-testid="tag-input"
+          value={ tag }
+          onChange={ this.handleChange }
+        >
           <option value="Alimentação">Alimentação</option>
           <option value="Lazer">Lazer</option>
           <option value="Trabalho">Trabalho</option>
@@ -47,8 +78,8 @@ class WalletForm extends Component {
             type="text"
             data-testid="description-input"
             name="description"
-          // value={ description }
-          // onChange={ this.handleChange }
+            value={ description }
+            onChange={ this.handleChange }
           />
         </label>
       </form>

@@ -12,7 +12,7 @@ class Login extends React.Component {
 
   validateEmailAndPassword = () => {
     const { email, password } = this.state;
-    const emailRegex = (/^\S+@\S+\.\S+$/);
+    const emailRegex = /[^@]+@[^@]+\.[^@]+/gi;
     const passwordMinLength = 6;
     const isEmailValid = emailRegex.test(email);
     const isPasswordValid = password.length >= passwordMinLength;

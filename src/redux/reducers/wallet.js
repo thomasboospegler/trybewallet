@@ -11,7 +11,7 @@ const initialState = {
 const wallet = (state = initialState, action) => {
   switch (action.type) {
   case WALLET_INFO:
-    return { ...state };
+    return { ...state, expenses: [...state.expenses, action.wallet] };
   case REQUEST_API:
     return { ...state };
   case SUCCES_API:

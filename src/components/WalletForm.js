@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { fetchAPI } from '../redux/actions';
+import { fetchAPI, walletSubmmit } from '../redux/actions';
+import fetchCurrenceAPI from '../services/fetchApi';
 
 class WalletForm extends Component {
   state = {
-    despesa: '',
-    currencie: 'USD',
+    value: '',
+    currency: 'USD',
     method: 'Dinheiro',
     tag: 'Alimentação',
     description: '',
@@ -24,9 +25,24 @@ class WalletForm extends Component {
     });
   };
 
+  handleSubmit = async (event) => {
+    event.preventDefault();
+    const { getAsk, expenses } = this.props;
+    const id = expenses.length;
+    const data = await fetchCurrenceAPI();
+    getAsk({ id, ...this.state, exchangeRates: data });
+    this.setState({
+      value: '',
+      currency: 'USD',
+      method: 'Dinheiro',
+      tag: 'Alimentação',
+      description: '',
+    });
+  };
+
   render() {
     const { currencies } = this.props;
-    const { despesa, currencie, method, tag, description } = this.state;
+    const { value, currency, method, tag, description } = this.state;
     return (
       <form onSubmit={ this.handleSubmit }>
         <label htmlFor="despesa">
@@ -34,15 +50,15 @@ class WalletForm extends Component {
           <input
             type="number"
             data-testid="value-input"
-            name="despesa"
-            value={ despesa }
+            name="value"
+            value={ value }
             onChange={ this.handleChange }
           />
         </label>
         <select
-          name="currencie"
+          name="currency"
           data-testid="currency-input"
-          value={ currencie }
+          value={ currency }
           onChange={ this.handleChange }
         >
           {currencies.map((curr) => (
@@ -82,6 +98,9 @@ class WalletForm extends Component {
             onChange={ this.handleChange }
           />
         </label>
+        <button type="submit">
+          Adicionar despesa
+        </button>
       </form>
     );
   }
@@ -89,17 +108,22 @@ class WalletForm extends Component {
 
 WalletForm.propTypes = {
   getCurrencies: PropTypes.func.isRequired,
+  getAsk: PropTypes.func.isRequired,
   currencies: PropTypes.shape({
     map: PropTypes.isRequired,
   }).isRequired,
+  dispatch: PropTypes.shape({}).isRequired,
+  expenses: PropTypes.arrayOf(PropTypes.shape()).isRequired,
 };
 
 const mapStateToProps = (state) => ({
   currencies: state.wallet.currencies,
+  expenses: state.wallet.expenses,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   getCurrencies: () => dispatch(fetchAPI()),
+  getAsk: (state) => dispatch(walletSubmmit(state)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WalletForm);

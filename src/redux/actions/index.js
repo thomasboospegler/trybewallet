@@ -4,12 +4,12 @@ export const WALLET_INFO = 'WALLET_INFO';
 
 const walletSubmmit = (wallet) => ({
   type: WALLET_INFO,
-  payload: wallet,
+  wallet,
 });
 
 const userSubmmit = (user) => ({
   type: PERSONAL_INFO,
-  payload: user,
+  user,
 });
 
 export { walletSubmmit, userSubmmit };

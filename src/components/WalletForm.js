@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { fetchAPI, walletSubmmit } from '../redux/actions';
 import fetchCurrenceAPI from '../services/fetchApi';
+import Table from './Table';
 
 class WalletForm extends Component {
   state = {
@@ -103,6 +104,7 @@ class WalletForm extends Component {
         <button type="submit">
           Adicionar despesa
         </button>
+        <Table />
       </form>
     );
   }

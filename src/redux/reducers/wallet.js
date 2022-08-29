@@ -1,5 +1,5 @@
 // Esse reducer será responsável por tratar o todas as informações relacionadas as despesas
-import { WALLET_INFO, REQUEST_API, SUCCES_API, REJECTED_API } from '../actions';
+import { WALLET_INFO, REQUEST_API, SUCCES_API, REJECTED_API, RMV_ITEM } from '../actions';
 
 const initialState = {
   currencies: [], // array de string
@@ -21,6 +21,8 @@ const wallet = (state = initialState, action) => {
         .map(({ code }) => code) };
   case REJECTED_API:
     return { ...state };
+  case RMV_ITEM:
+    return { ...state, expenses: action.data };
   default:
     return state;
   }

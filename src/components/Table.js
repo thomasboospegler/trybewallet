@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { rmvItemFromState } from '../redux/actions';
 
 class Table extends Component {
+  handleRmvButton = (id) => {
+    const { expenses, getAsk } = this.props;
+    const filteredExpensesList = expenses.filter((expense) => expense.id !== id);
+    console.log(filteredExpensesList);
+    getAsk(filteredExpensesList);
+  };
+
   render() {
     const { expenses } = this.props;
     return (
@@ -35,7 +43,13 @@ class Table extends Component {
               <td>Real</td>
               <td>
                 <button type="button">Editar</button>
-                <button type="button">Excluir</button>
+                <button
+                  type="button"
+                  data-testid="delete-btn"
+                  onClick={ () => this.handleRmvButton(expense.id) }
+                >
+                  Excluir
+                </button>
               </td>
             </tr>)) }
         </tbody>
@@ -46,10 +60,15 @@ class Table extends Component {
 
 Table.propTypes = {
   expenses: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  getAsk: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   expenses: state.wallet.expenses,
 });
 
-export default connect(mapStateToProps)(Table);
+const mapDispatchToProps = (dispatch) => ({
+  getAsk: (state) => dispatch(rmvItemFromState(state)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Table);

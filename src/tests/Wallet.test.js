@@ -86,8 +86,8 @@ describe('Testes da pagina "Login"', () => {
 
     // Testa botão submit e verifi se os valores esperados aparecem na tela
     userEvent.click(submitButton);
-    // const { wallet } = store.getState();
-    // expect(wallet).toEqual({
+    // const resultStore = store.getState();
+    // expect(resultStore).toEqual({
     //   user: {
     //     email,
     //   },

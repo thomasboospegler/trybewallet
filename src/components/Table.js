@@ -6,8 +6,9 @@ import { rmvItemFromState } from '../redux/actions';
 class Table extends Component {
   handleRmvButton = (id) => {
     const { expenses, getAsk } = this.props;
-    const filteredExpensesList = expenses.filter((expense) => expense.id !== id);
-    console.log(filteredExpensesList);
+    const filteredExpensesList = expenses
+      .filter((expense) => expense.id !== id);
+      // .map((expense, index) => ({ ...expense, id: index }));
     getAsk(filteredExpensesList);
   };
 

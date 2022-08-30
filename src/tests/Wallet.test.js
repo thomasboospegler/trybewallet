@@ -1,6 +1,6 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import renderWithRouterAndRedux from './helpers/renderWith';
 import mockData from './helpers/mockData';
 import App from '../App';
@@ -20,6 +20,7 @@ describe('Testes da pagina "Login"', () => {
     },
   };
   const pathWallet = '/carteira';
+  const cartaoDeCredito = 'Cartão de crédito';
 
   const getInputsAndButtonsFromLoginPage = () => {
     const despesasInput = screen.getByLabelText(/despesa:/i);
@@ -60,7 +61,7 @@ describe('Testes da pagina "Login"', () => {
     expect(descriptionInput).toHaveValue('');
   });
 
-  it('should submit te form with the information and add the values in the screen', () => {
+  it('should submit te form with the information and add the values in the screen', async () => {
     // const { store } =
     renderWithRouterAndRedux(<App />, {
       initialState, initialEntries: [pathWallet],
@@ -73,41 +74,61 @@ describe('Testes da pagina "Login"', () => {
     // Digita e seleciona valores nos inputs
     userEvent.type(despesasInput, '10');
     userEvent.selectOptions(currencyInput, 'BTC');
-    userEvent.selectOptions(methodInput, 'Cartão de crédito');
+    userEvent.selectOptions(methodInput, cartaoDeCredito);
     userEvent.selectOptions(tagInput, 'Lazer');
     userEvent.type(descriptionInput, 'teste');
 
     // Verifica os valores dos inputs
     expect(despesasInput).toHaveValue(10);
     expect(currencyInput).toHaveValue('BTC');
-    expect(methodInput).toHaveValue('Cartão de crédito');
+    expect(methodInput).toHaveValue(cartaoDeCredito);
     expect(tagInput).toHaveValue('Lazer');
     expect(descriptionInput).toHaveValue('teste');
 
-    // Testa botão submit e verifi se os valores esperados aparecem na tela
+    // Testa botão submit e verifica se os valores esperados aparecem na tela
     userEvent.click(submitButton);
-    // const resultStore = store.getState();
-    // expect(resultStore).toEqual({
-    //   user: {
-    //     email,
-    //   },
-    //   wallet: {
-    //     currencies: Object.values(mockData).map(({ code }) => code),
-    //     expenses: [
-    //       {
-    //         id: 0,
-    //         value: '10',
-    //         currency: 'BTC',
-    //         method: 'Cartão de crédito',
-    //         tag: 'Lazer',
-    //         description: 'teste',
-    //         exchangeRates: mockData,
-    //       },
-    //     ],
-    //     editor: false,
-    //     idToEdit: 0,
-    //   },
-    // });
-    // expect(screen.getByText(/1028.60/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(despesasInput).toHaveValue(null);
+      expect(currencyInput).toHaveValue('USD');
+      expect(methodInput).toHaveValue('Dinheiro');
+      expect(tagInput).toHaveValue('Alimentação');
+      expect(descriptionInput).toHaveValue('');
+    });
+  });
+
+  it('Test delete button', async () => {
+    const newStore = {
+      user: {
+        email,
+      },
+      wallet: {
+        currencies: Object.values(mockData).map(({ code }) => code),
+        expenses: [
+          {
+            id: 0,
+            value: '10',
+            currency: 'BTC',
+            method: 'Cartão de crédito',
+            tag: 'Lazer',
+            description: 'teste',
+            exchangeRates: mockData,
+          },
+        ],
+        editor: false,
+        idToEdit: 0,
+      },
+    };
+    const { store } = renderWithRouterAndRedux(
+      <App />,
+      { initialEntries: [pathWallet], initialState: newStore },
+    );
+    const btnDelete = screen.getByTestId('delete-btn');
+    userEvent.click(btnDelete);
+
+    await waitFor(() => {
+      const { wallet } = store.getState();
+      expect(wallet.expenses).toHaveLength(0);
+      expect(screen.getByText(/0/i)).toBeInTheDocument();
+    });
   });
 });

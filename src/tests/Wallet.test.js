@@ -122,9 +122,9 @@ describe('Testes da pagina "Login"', () => {
       <App />,
       { initialEntries: [pathWallet], initialState: newStore },
     );
+    // Clica no botao de romover o item da lista e verifica se foi removido da store
     const btnDelete = screen.getByTestId('delete-btn');
     userEvent.click(btnDelete);
-
     await waitFor(() => {
       const { wallet } = store.getState();
       expect(wallet.expenses).toHaveLength(0);

@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { fetchAPI, walletSubmmit } from '../redux/actions';
+import { fetchAPI,
+  walletSubmmit,
+  editItemFromState,
+  expenseSubmit,
+  rmvItemFromState } from '../redux/actions';
 import fetchCurrenceAPI from '../services/fetchApi';
 import Table from './Table';
 
@@ -19,6 +23,12 @@ class WalletForm extends Component {
     getCurrencies();
   }
 
+  // componentDidUpdate() {
+  //   const { expenses, getAskRm } = this.props;
+  //   const sortedList = expenses.sort((a, b) => ((a.id > b.id) ? 1 : 0));
+  //   getAskRm(sortedList);
+  // }
+
   handleChange = ({ target }) => {
     const { name, value } = target;
     this.setState({
@@ -26,12 +36,31 @@ class WalletForm extends Component {
     });
   };
 
+  sortExpenses = () => {
+    const { sortExpenses, expenses } = this.props;
+    sortExpenses(expenses);
+  };
+
   handleSubmit = async (event) => {
     event.preventDefault();
-    const { getAsk, expenses } = this.props;
-    const id = expenses.length;
-    const data = await fetchCurrenceAPI();
-    getAsk({ id, ...this.state, exchangeRates: data });
+    const { getAsk, isEditing, idToEdit, editState, getAskRm, expenses } = this.props;
+    if (isEditing) {
+      const data = await fetchCurrenceAPI();
+      const filteredExpensesList = expenses
+        .filter((expense) => expense.id !== idToEdit);
+      getAskRm(filteredExpensesList);
+      getAsk({ id: idToEdit, ...this.state, exchangeRates: data, isEditing: false });
+      const editData = {
+        isEditing: false,
+        idToEdit: 0,
+      };
+      editState(editData);
+    } else {
+      const id = expenses.length;
+      const data = await fetchCurrenceAPI();
+      getAsk({ id, ...this.state, exchangeRates: data, isEditing: false });
+    }
+    this.sortExpenses();
     this.setState({
       value: '',
       currency: 'USD',
@@ -42,7 +71,7 @@ class WalletForm extends Component {
   };
 
   render() {
-    const { currencies } = this.props;
+    const { currencies, isEditing } = this.props;
     const { value, currency, method, tag, description } = this.state;
     return (
       <form onSubmit={ this.handleSubmit }>
@@ -102,7 +131,7 @@ class WalletForm extends Component {
           />
         </label>
         <button type="submit">
-          Adicionar despesa
+          { isEditing ? 'Editar Despesa' : 'Adicionar despesa' }
         </button>
         <Table />
       </form>
@@ -113,21 +142,31 @@ class WalletForm extends Component {
 WalletForm.propTypes = {
   getCurrencies: PropTypes.func.isRequired,
   getAsk: PropTypes.func.isRequired,
+  getAskRm: PropTypes.func.isRequired,
   currencies: PropTypes.shape({
     map: PropTypes.isRequired,
   }).isRequired,
   dispatch: PropTypes.shape({}).isRequired,
   expenses: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+  isEditing: PropTypes.bool.isRequired,
+  idToEdit: PropTypes.number.isRequired,
+  editState: PropTypes.func.isRequired,
+  sortExpenses: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   currencies: state.wallet.currencies,
   expenses: state.wallet.expenses,
+  isEditing: state.wallet.editor,
+  idToEdit: state.wallet.idToEdit,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   getCurrencies: () => dispatch(fetchAPI()),
   getAsk: (state) => dispatch(walletSubmmit(state)),
+  getAskRm: (state) => dispatch(rmvItemFromState(state)),
+  editState: (state) => dispatch(editItemFromState(state)),
+  sortExpenses: (state) => dispatch(expenseSubmit(state)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WalletForm);

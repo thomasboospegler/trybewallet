@@ -96,7 +96,7 @@ describe('Testes da pagina "Login"', () => {
     });
   });
 
-  it('Test delete button', async () => {
+  it('Test delete button and edit button', async () => {
     const newStore = {
       user: {
         email,
@@ -108,7 +108,16 @@ describe('Testes da pagina "Login"', () => {
             id: 0,
             value: '10',
             currency: 'BTC',
-            method: 'Cartão de crédito',
+            method: cartaoDeCredito,
+            tag: 'Lazer',
+            description: 'teste',
+            exchangeRates: mockData,
+          },
+          {
+            id: 1,
+            value: '100',
+            currency: 'USD',
+            method: cartaoDeCredito,
             tag: 'Lazer',
             description: 'teste',
             exchangeRates: mockData,
@@ -123,12 +132,18 @@ describe('Testes da pagina "Login"', () => {
       { initialEntries: [pathWallet], initialState: newStore },
     );
     // Clica no botao de romover o item da lista e verifica se foi removido da store
-    const btnDelete = screen.getByTestId('delete-btn');
-    userEvent.click(btnDelete);
+    const btnDelete = screen.getAllByTestId('delete-btn');
+    userEvent.click(btnDelete[0]);
     await waitFor(() => {
       const { wallet } = store.getState();
-      expect(wallet.expenses).toHaveLength(0);
+      expect(wallet.expenses).toHaveLength(1);
       expect(screen.getByText(/0/i)).toBeInTheDocument();
     });
+
+    const editButton = screen.getByTestId('edit-btn');
+    userEvent.click(editButton);
+
+    const submitEditButton = screen.getByRole('button', { name: /Editar Despesa/i });
+    expect(submitEditButton).toBeInTheDocument();
   });
 });

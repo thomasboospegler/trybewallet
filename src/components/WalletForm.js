@@ -38,27 +38,31 @@ class WalletForm extends Component {
 
   sortExpenses = () => {
     const { sortExpenses, expenses } = this.props;
-    sortExpenses(expenses);
+    console.log(expenses);
+    const newExpensesList = expenses
+      .map(({ editor, idToEdit, ...newexpenses }) => newexpenses);
+    console.log(newExpensesList);
+    sortExpenses(newExpensesList);
   };
 
   handleSubmit = async (event) => {
     event.preventDefault();
-    const { getAsk, isEditing, idToEdit, editState, getAskRm, expenses } = this.props;
-    if (isEditing) {
+    const { getAsk, editor, idToEdit, editState, getAskRm, expenses } = this.props;
+    if (editor) {
       const data = await fetchCurrenceAPI();
       const filteredExpensesList = expenses
         .filter((expense) => expense.id !== idToEdit);
       getAskRm(filteredExpensesList);
-      getAsk({ id: idToEdit, ...this.state, exchangeRates: data, isEditing: false });
+      getAsk({ id: idToEdit, ...this.state, exchangeRates: data, editor: false });
       const editData = {
-        isEditing: false,
+        editor: false,
         idToEdit: 0,
       };
       editState(editData);
     } else {
       const id = expenses.length;
       const data = await fetchCurrenceAPI();
-      getAsk({ id, ...this.state, exchangeRates: data, isEditing: false });
+      getAsk({ id, ...this.state, exchangeRates: data, editor: false });
     }
     this.sortExpenses();
     this.setState({
@@ -71,7 +75,7 @@ class WalletForm extends Component {
   };
 
   render() {
-    const { currencies, isEditing } = this.props;
+    const { currencies, editor } = this.props;
     const { value, currency, method, tag, description } = this.state;
     return (
       <form onSubmit={ this.handleSubmit }>
@@ -131,7 +135,7 @@ class WalletForm extends Component {
           />
         </label>
         <button type="submit">
-          { isEditing ? 'Editar Despesa' : 'Adicionar despesa' }
+          { editor ? 'Editar Despesa' : 'Adicionar despesa' }
         </button>
         <Table />
       </form>
@@ -148,7 +152,7 @@ WalletForm.propTypes = {
   }).isRequired,
   dispatch: PropTypes.shape({}).isRequired,
   expenses: PropTypes.arrayOf(PropTypes.shape()).isRequired,
-  isEditing: PropTypes.bool.isRequired,
+  editor: PropTypes.bool.isRequired,
   idToEdit: PropTypes.number.isRequired,
   editState: PropTypes.func.isRequired,
   sortExpenses: PropTypes.func.isRequired,
@@ -157,7 +161,7 @@ WalletForm.propTypes = {
 const mapStateToProps = (state) => ({
   currencies: state.wallet.currencies,
   expenses: state.wallet.expenses,
-  isEditing: state.wallet.editor,
+  editor: state.wallet.editor,
   idToEdit: state.wallet.idToEdit,
 });
 
